@@ -1,0 +1,181 @@
+---
+import type { Category } from "@prisma/client";
+
+interface Props {
+    open: boolean;
+    errors?: {
+        name?: string[];
+        description?: string[];
+        price?: string[];
+        count?: string[];
+        picture?: string[];
+        form?: string[];
+    };
+    data?: Category;
+}
+
+const { open, errors, data } = Astro.props;
+---
+
+<div
+    id="newCategoryDiv"
+    x-data={`{edit:${open}}`}
+    x-init={`$watch('edit', value => { 
+    if(edit) {
+        htmx.process(document.querySelector('#newCategory'))
+    } 
+  })`}
+>
+    <template x-if="edit" id="cat-template">
+        <div>
+            <div
+                id="modal-backdrop"
+                class="modal-backdrop fade show"
+                style="display:block;"
+            >
+            </div>
+            <div
+                id="modal"
+                class="modal fade show"
+                tabindex="-1"
+                style="display:block;"
+            >
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">New Category</h5>
+                        </div>
+                        <div class="modal-body">
+                            <form
+                                hx-disabled-elt="#cat-btn, #cancel-btn"
+                                class="mx-1 mx-md-4"
+                                hx-post="/categories/new"
+                                hx-indicator="#cat-btn"
+                                hx-swap="multi:#newCategoryDiv:outerHTML,#catTable:outerHTML"
+                                id="newCategory"
+                            >
+                                <div
+                                    class="d-flex flex-row align-items-center mb-4"
+                                >
+                                    <div class="form-outline flex-fill mb-0">
+                                        {
+                                            errors && errors.form && (
+                                                <div
+                                                    class="alert alert-danger"
+                                                    role="alert"
+                                                >
+                                                    {errors.form.join(", ")}
+                                                </div>
+                                            )
+                                        }
+                                        {
+                                            errors && errors.name && (
+                                                <div
+                                                    class="alert alert-danger"
+                                                    role="alert"
+                                                >
+                                                    {errors.name.join(", ")}
+                                                </div>
+                                            )
+                                        }
+                                        <input
+                                            x-init="$el.focus()"
+                                            required
+                                            type="text"
+                                            id="name"
+                                            name="name"
+                                            placeholder="Name"
+                                            class="form-control"
+                                            @keydown.escape={`edit=false`}
+                                            value={data?.name}
+                                        />
+                                    </div>
+                                </div>
+                                <div
+                                    class="d-flex flex-row align-items-center mb-4"
+                                >
+                                    <div class="form-outline flex-fill mb-0">
+                                        {
+                                            errors && errors.description && (
+                                                <div
+                                                    class="alert alert-danger"
+                                                    role="alert"
+                                                >
+                                                    {errors.description.join(
+                                                        ", ",
+                                                    )}
+                                                </div>
+                                            )
+                                        }
+                                        <textarea
+                                            required
+                                            id="description"
+                                            name="description"
+                                            placeholder="Description"
+                                            rows="4"
+                                            class="form-control"
+                                            @keydown.escape={`edit=false`}
+                                            @keydown.shift.enter.prevent="$refs.saveCategory.click()"
+                                            >{data?.description}</textarea
+                                        >
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button
+                                        x-ref="saveCategory"
+                                        id="cat-btn"
+                                        type="submit"
+                                        class="btn btn-primary"
+                                    >
+                                        <span class="btn-content"
+                                            >Add Category</span
+                                        >
+                                        <span class="htmx-indicator"
+                                            >Wait...</span
+                                        >
+                                    </button>
+                                    <button
+                                        @click="reset();edit=false"
+                                        id="cancel-btn"
+                                        type="button"
+                                        class="btn btn-secondary"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+    <h6 class="p-2">
+        <button
+            @click="edit=true"
+            type="button"
+            class="btn btn-link text-decoration-none"
+        >
+            Add Category
+        </button>
+    </h6>
+</div>
+
+<script is:inline>
+    function reset() {
+        const template = document.getElementById("cat-template");
+        const fields = ["name", "description"];
+
+        fields.forEach((field) => {
+            document.getElementById(field).value = "";
+            template.content.getElementById(field).value = "";
+        });
+
+        const alerts = document.querySelectorAll(".alert-danger");
+        alerts.forEach((alert) => alert.remove());
+
+        const templateAlerts =
+            template.content.querySelectorAll(".alert-danger");
+        templateAlerts.forEach((alert) => alert.remove());
+    }
+</script>

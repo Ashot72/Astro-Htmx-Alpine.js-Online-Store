@@ -1,0 +1,12 @@
+---
+import Payments from "../components/Payments/Payments.astro";
+import Layout from "../layouts/Layout.astro";
+
+if (!Astro.locals.userId) {
+    return Astro.redirect("/");
+}
+---
+
+<Layout title="Orders">
+    <Payments />
+</Layout>

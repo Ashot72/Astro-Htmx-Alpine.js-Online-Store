@@ -1,0 +1,83 @@
+---
+import { z } from "zod";
+import type { Product } from "@prisma/client";
+import ProductsView from "../../components/Products/ProductsView.astro";
+import { addProduct } from "../../server/products";
+import NewProduct from "../../components/Products/NewProduct.astro";
+
+const userId = Astro.locals.userId;
+if (!userId) {
+    return Astro.redirect("/");
+}
+
+let catId: string, data, errors;
+
+async function addNewProduct() {
+    if (Astro.request.method !== "POST") {
+        errors = { form: ["Bad Request"] };
+        return;
+    }
+
+    const formData = await Astro.request.formData();
+
+    catId = formData.get("catId") as string;
+    const name = formData.get("name") as string;
+    const description = formData.get("description") as string;
+    const price = formData.get("price") as string;
+    const count = formData.get("count") as string;
+    const picture = formData.get("picture") as string;
+
+    data = {
+        name,
+        description,
+        price: +price,
+        count: +count,
+        picture,
+    } as Product;
+
+    const result = z
+        .object({
+            name: z.string().min(5),
+            description: z.string().min(10),
+            price: z.coerce
+                .number()
+                .gt(0, "Must be positive number")
+                .multipleOf(0.01, "Must have a maximum of two decimal places"),
+            count: z.coerce.number().gt(0, "Must be positive number").int(),
+            picture: z.string().min(1, "Must upload an image").trim(),
+        })
+        .safeParse({ name, description, price, count, picture });
+
+    if (!result.success) {
+        errors = result.error.flatten().fieldErrors;
+        return;
+    }
+
+    try {
+        const newProduct = {
+            name: result.data.name,
+            description: result.data.description,
+            price: result.data.price,
+            count: result.data.count,
+            picture: result.data.picture,
+        } as Product;
+
+        await addProduct(newProduct, catId, userId);
+    } catch (e) {
+        errors = { form: [e.message] };
+        return;
+    }
+}
+
+await addNewProduct();
+
+export const partial = true;
+---
+
+{
+    errors ? (
+        <NewProduct {errors} {data} {catId} open />
+    ) : (
+        <ProductsView {catId} />
+    )
+}

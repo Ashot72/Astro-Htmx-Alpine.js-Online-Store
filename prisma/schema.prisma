@@ -1,0 +1,78 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String     @id @default(auto()) @map("_id") @db.ObjectId
+  email    String     @unique
+  Password Password?
+  Category Category[]
+  Products Product[]
+  Cart     Cart[]
+  Payments Payment[]
+}
+
+model Password {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  salt   String
+  hash   String
+  User   User   @relation(fields: [userId], references: [id])
+  userId String @unique @db.ObjectId
+}
+
+model Category {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String
+  dateAdded   DateTime  @default(now())
+  User        User      @relation(fields: [userId], references: [id])
+  userId      String    @db.ObjectId
+  Products    Product[]
+}
+
+model Product {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String
+  price       Float
+  picture     String
+  count       Int
+  dateAdded   DateTime @default(now())
+  User        User     @relation(fields: [userId], references: [id])
+  userId      String   @db.ObjectId
+  Category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId  String   @db.ObjectId
+}
+
+type CartProducts {
+  id          String @db.ObjectId
+  name        String
+  description String
+  price       Float
+  picture     String
+  qty         Int
+}
+
+model Cart {
+  id       String         @id @default(auto()) @map("_id") @db.ObjectId
+  products CartProducts[]
+  User     User           @relation(fields: [userId], references: [id])
+  userId   String         @unique @db.ObjectId
+}
+
+model Payment {
+  id        String         @id @default(auto()) @map("_id") @db.ObjectId
+  stripeId  String
+  products  CartProducts[]
+  User      User           @relation(fields: [userId], references: [id])
+  userId    String         @db.ObjectId
+  dateAdded DateTime       @default(now())
+}

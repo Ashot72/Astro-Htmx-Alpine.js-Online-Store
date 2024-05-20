@@ -1,0 +1,60 @@
+---
+import type { Category } from "@prisma/client";
+import { lnToBr } from "../../helpers/utils";
+
+interface Props {
+    category: Category;
+}
+
+const loggedOnUserId = Astro.locals.userId;
+const {
+    category: { id, userId, name, description },
+} = Astro.props;
+---
+
+<td style={{ width: "33%" }}>
+    <div class="fw-bold mb-1">{name}</div>
+</td>
+<td style={{ width: "33%" }}>
+    <div class="mb-1" set:html={lnToBr(description)} />
+</td>
+<td>
+    <div class="d-flex justify-content-center">
+        <span id=`modal-span-${id}`></span>
+        <button
+            id=`edit-btn-${id}`
+            hx-get=`/categories/edit/${id}`
+            disabled={userId !== loggedOnUserId}
+            hx-target=`#modal-span-${id}`
+            hx-disabled-elt=`#edit-btn-${id}`
+            type="button"
+            class="btn btn-primary btn-sm btn-rounded"
+        >
+            Edit
+        </button>&nbsp;
+        <button
+            id=`delete-btn-${id}`
+            hx-target-error=`#category-errors`
+            hx-delete=`/categories/delete/${id}`
+            hx-target="#catTable"
+            hx-disabled-elt=`#delete-btn-${id}`
+            hx-swap="outerHTML"
+            hx-confirm=`Are you sure you wish to delete the category '${name}'?`
+            disabled={userId !== loggedOnUserId}
+            type="button"
+            class="btn btn-primary btn-sm btn-rounded"
+        >
+            Delete
+        </button>&nbsp;
+        <button
+            hx-get=`/products/${id}`
+            hx-push-url="true"
+            hx-target="#catViews"
+            hx-swap="outerHTML"
+            type="button"
+            class="btn btn-primary btn-sm btn-rounded"
+        >
+            View Products
+        </button>
+    </div>
+</td>

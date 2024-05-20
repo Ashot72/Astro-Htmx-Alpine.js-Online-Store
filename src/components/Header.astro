@@ -1,0 +1,150 @@
+---
+import { getUserEmail } from "../server/auth";
+
+let userId = Astro.locals.userId;
+
+const term = Astro.url.searchParams.get("term") || "";
+
+let email;
+if (userId) {
+    email = await getUserEmail(userId);
+}
+---
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+        <a class="navbar-brand">
+            <div style={{ marginLeft: "250px" }}></div>
+        </a>
+        <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+        >
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a href="/" class="nav-link">Home</a>
+                </li>
+                {
+                    userId && (
+                        <li class="nav-item">
+                            <a href="/categories" class="nav-link">
+                                Categories{" "}
+                            </a>
+                        </li>
+                    )
+                }
+                {
+                    userId && (
+                        <li class="nav-item">
+                            <a href="/cart" class="nav-link">
+                                Shopping Cart
+                            </a>
+                        </li>
+                    )
+                }
+                {
+                    userId && (
+                        <li class="nav-item">
+                            <a href="/orders" class={"nav-link"}>
+                                Orders
+                            </a>
+                        </li>
+                    )
+                }
+                <li class="nav-item ms-3" id="search">
+                    <input
+                        hx-get="/"
+                        hx-trigger="input changed delay:500ms, search"
+                        hx-push-url="true"
+                        hx-target="#catProducts"
+                        hx-swap="outerHTML"
+                        style={{ width: "200px" }}
+                        type="search"
+                        id="term"
+                        name="term"
+                        placeholder="Search"
+                        class="form-control"
+                        value={term}
+                    />
+                </li>
+            </ul>
+            <ul class="navbar-nav ms-auto">
+                {
+                    userId ? (
+                        <li>
+                            <form method="post" action="/logout">
+                                <button class="btn btn-link nav-link">
+                                    {email} | Sign Out
+                                </button>
+                            </form>
+                        </li>
+                    ) : (
+                        <li class="nav-item dropdown">
+                            <a
+                                class="nav-link dropdown-toggle"
+                                role="button"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false"
+                            >
+                                Account
+                            </a>
+                            <ul
+                                class="dropdown-menu dropdown-menu-end"
+                                aria-labelledby="navbarDropdown"
+                            >
+                                <li>
+                                    <a
+                                        id="signin"
+                                        class="dropdown-item"
+                                        hx-get="/auth"
+                                        hx-vals='{"signUp": false}'
+                                        hx-target="#auth-modal"
+                                    >
+                                        Log In
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        id="signup"
+                                        class="dropdown-item"
+                                        hx-get="/auth"
+                                        hx-vals='{"signUp": true}'
+                                        hx-target="#auth-modal"
+                                    >
+                                        Sign Up
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    )
+                }
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<script is:inline>
+    function hideOrShow() {
+        const pathName = document.location.pathname;
+        const search = document.getElementById("search");
+        if (search) {
+            search.style.display =
+                pathName === "/" || pathName.indexOf("home/products") !== -1
+                    ? "block"
+                    : "none";
+        }
+    }
+    document.addEventListener("htmx:afterSettle", function (evt) {
+        hideOrShow();
+    });
+
+    hideOrShow();
+</script>

@@ -1,0 +1,11 @@
+---
+import CartComp from "../../components/Cart/Cart.astro";
+
+if (!Astro.locals.userId) {
+    return Astro.redirect("/");
+}
+
+export const partial = true;
+---
+
+<CartComp />

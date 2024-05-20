@@ -1,0 +1,85 @@
+---
+import type { CartProducts } from "@prisma/client";
+
+interface Props {
+    product: CartProducts;
+}
+
+const {
+    product: { id, name, description, price, picture, qty },
+} = Astro.props;
+---
+
+<div class="card mb-3" id={`userCart-${id}`}>
+    <div class="card-body">
+        <div class="d-flex justify-content-between">
+            <div class="d-flex flex-row">
+                <div>
+                    <img
+                        src={picture}
+                        alt={name}
+                        style={{ maxWidth: "420px" }}
+                    />
+                </div>
+            </div>
+            <div class="d-flex flex-row align-items-center">
+                <div class="ms-3">
+                    <h5 class="text-primary">{name}</h5>
+                    <div class="small mb-0 text-secondary">{description}</div>
+                    <div class="fw-bold mb-0 pe-3">Price: ${price}</div>
+                </div>
+            </div>
+            <div class="d-flex flex-row align-items-center">
+                <div style={{ width: "150px" }} class="d-flex flex-row">
+                    <div>
+                        <form
+                            hx-target-error={`#cart-error`}
+                            hx-post={`/cart/addOrRemove`}
+                            hx-target={`#userCart-${id}`}
+                            hx-swap="outerHTML"
+                        >
+                            <input type="hidden" name="id" value={id} />
+                            <input type="hidden" name="add" value="false" />
+                            <button
+                                class="btn btn-link"
+                                style={{ marginTop: "-5px" }}
+                            >
+                                <i class="fas fa-minus"></i></button
+                            >
+                        </form>
+                    </div>
+                    <h5 class="fw-normal mb-0">{qty}</h5>
+                    <div>
+                        <form
+                            hx-target-error={`#cart-error`}
+                            hx-post={`/cart/addOrRemove`}
+                            hx-target={`#userCart-${id}`}
+                            hx-swap="outerHTML"
+                        >
+                            <input type="hidden" name="id" value={id} />
+                            <input type="hidden" name="add" value="true" />
+                            <button
+                                class="btn btn-link"
+                                style={{ marginTop: "-5px" }}
+                            >
+                                <i class="fas fa-plus"></i></button
+                            >
+                        </form>
+                    </div>
+                </div>
+                <form
+                    hx-target-error={`#cart-error`}
+                    hx-confirm=`Are you sure you wish to delete the cart item?`
+                    hx-delete={`/cart/delete`}
+                    hx-target={`#userCart-${id}`}
+                    hx-swap="outerHTML"
+                >
+                    <input type="hidden" name="id" value={id} />
+                    <button class="btn btn-link" style={{ marginTop: "-5px" }}>
+                        <i class="fas fa-trash-alt"></i></button
+                    >
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

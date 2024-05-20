@@ -1,0 +1,15 @@
+---
+import ProductsView from "../../components/Products/ProductsView.astro";
+
+if (!Astro.locals.userId) {
+  return Astro.redirect("/");
+}
+
+const { catId } = Astro.params;
+if (Astro.request.method !== "GET" || !catId) {
+  return Astro.redirect("/");
+}
+---
+
+<ProductsView {catId} />
+<title>Products</title>

@@ -1,0 +1,32 @@
+---
+import { getCategories } from "../../../server/categories";
+import { getCategoryProducts } from "../../../server/products";
+import Products from "../../../components/Home/Products.astro";
+import Categories from "../../../components/Home/Categories.astro";
+import Layout from "../../../layouts/Layout.astro";
+
+const { categoryId } = Astro.params;
+
+const categories = await getCategories();
+const products = await getCategoryProducts(categoryId);
+
+const htmx = !!Astro.request.headers.get("HX-Request");
+---
+
+{
+  htmx ? (
+    <>
+      <Categories {categories} {categoryId} count={products.length} />
+      <span class="w-100" id="catProducts" hx-swap-oob="true">
+        <Products {products} />
+      </span>
+    </>
+  ) : (
+    <Layout title="Online Store">
+      <div class="d-flex container">
+        <Categories {categories} {categoryId} count={products.length} />
+        <Products {products} />
+      </div>
+    </Layout>
+  )
+}

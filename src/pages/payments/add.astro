@@ -1,0 +1,18 @@
+---
+import { addPayments } from "../../server/payments";
+
+if (Astro.request.method !== "POST") {
+  return Astro.redirect("/");
+}
+const data = await Astro.request.json();
+const { userId, token, total } = data;
+
+try {
+  await addPayments(userId, token, total);
+} catch (e) {
+  console.log(e);
+  return new Response(e.message, {
+    status: 400,
+  });
+}
+---

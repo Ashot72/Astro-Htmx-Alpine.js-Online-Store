@@ -1,0 +1,29 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import NewProduct from "./NewProduct.astro";
+import Products from "./Products.astro";
+
+interface Props {
+  catId: string;
+}
+
+const htmx = !!Astro.request.headers.get("HX-Request");
+
+const { catId } = Astro.props;
+---
+
+<div id="prodViews">
+  {
+    htmx ? (
+      <>
+        <NewProduct {catId} open={false} />
+        <Products {catId} />
+      </>
+    ) : (
+      <Layout title="Products">
+        <NewProduct {catId} open={false} />
+        <Products {catId} />
+      </Layout>
+    )
+  }
+</div>

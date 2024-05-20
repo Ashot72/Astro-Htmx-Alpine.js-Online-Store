@@ -1,0 +1,57 @@
+---
+import type { Product } from "@prisma/client";
+import { lnToBr } from "../../helpers/utils";
+
+interface Props {
+    product: Product;
+}
+
+const loggedOnUserId = Astro.locals.userId;
+
+const {
+    product: { id, userId, name, description, price, count },
+} = Astro.props;
+---
+
+<td>
+    <div class="fw-bold mb-1">{name}</div>
+</td>
+<td>
+    <div class="mb-1" set:html={lnToBr(description)} />
+</td>
+<td class="text-center">
+    <div class="mb-1">${price}</div>
+</td>
+<td class="text-center">
+    <div class="mb-1">{count}</div>
+</td>
+<td>
+    <div class="d-flex justify-content-center">
+        <span id=`modal-span-${id}`></span>
+        <button
+            id=`edit-btn-${id}`
+            hx-get=`/products/edit/${id}`
+            disabled={userId !== loggedOnUserId}
+            hx-target=`#modal-span-${id}`
+            hx-disabled-elt=`#edit-btn-${id}`
+            type="button"
+            class="btn btn-primary btn-sm btn-rounded"
+        >
+            Edit
+        </button>&nbsp;
+        <button
+            id=`delete-btn-${id}`
+            hx-target-error=`#products-errors`
+            hx-delete=`/products/delete/${id}`
+            hx-target="#prodTable"
+            hx-disabled-elt=`#delete-btn-${id}`
+            hx-swap="outerHTML"
+            hx-confirm=`Are you sure you wish to delete the product '${name}'?`
+            disabled={userId !== loggedOnUserId}
+            type="button"
+            class="btn btn-primary btn-sm btn-rounded"
+        >
+            Delete
+        </button>
+    </div>
+</td>

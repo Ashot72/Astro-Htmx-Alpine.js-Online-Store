@@ -1,0 +1,91 @@
+---
+import { z } from "zod";
+import type { Product } from "@prisma/client";
+import { updateProduct as update } from "../../../server/products";
+import EditProduct from "../../../components/Products/EditProduct.astro";
+import Products from "../../../components/Products/Products.astro";
+
+const userId = Astro.locals.userId;
+if (!userId) {
+    return Astro.redirect("/");
+}
+
+const htmx = !!Astro.request.headers.get("HX-Request");
+
+if (Astro.request.method !== "POST" || !htmx) {
+    return Astro.redirect("/");
+}
+
+let data: Product, errors, id: string, categoryId: string;
+
+async function updateProduct() {
+    if (Astro.request.method !== "POST") {
+        errors = { form: ["Bad Request"] };
+        return;
+    }
+
+    const formData = await Astro.request.formData();
+
+    id = formData.get("id") as string;
+    categoryId = formData.get("categoryId") as string;
+    const name = formData.get("name") as string;
+    const description = formData.get("description") as string;
+    const price = formData.get("price") as string;
+    const count = formData.get("count") as string;
+    const picture = formData.get("picture") as string;
+
+    data = {
+        name,
+        description,
+        price: +price,
+        count: +count,
+        picture,
+    } as Product;
+
+    const result = z
+        .object({
+            name: z.string().min(5),
+            description: z.string().min(10),
+            price: z.coerce
+                .number()
+                .gt(0, "Must be positive number")
+                .multipleOf(0.01, "Must have a maximum of two decimal places"),
+            count: z.coerce.number().gt(0, "Must be positive number").int(),
+            picture: z.string().min(1, "Must upload an image").trim(),
+        })
+        .safeParse({ name, description, price, count, picture });
+
+    if (!result.success) {
+        errors = result.error.flatten().fieldErrors;
+        return;
+    }
+
+    try {
+        const product = {
+            name: result.data.name,
+            description: result.data.description,
+            price: result.data.price,
+            count: result.data.count,
+            picture: result.data.picture,
+            categoryId,
+        } as Product;
+
+        await update(id, product);
+    } catch (e) {
+        errors = { form: [e.message] };
+        return;
+    }
+}
+
+await updateProduct();
+
+export const partial = true;
+---
+
+{
+    errors ? (
+        <EditProduct {id} {errors} {data} />
+    ) : (
+        <Products catId={categoryId} />
+    )
+}

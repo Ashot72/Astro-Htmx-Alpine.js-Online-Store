@@ -1,0 +1,9 @@
+---
+if (!Astro.locals.userId) {
+    return Astro.redirect("/signin");
+}
+
+Astro.cookies.delete("online-store");
+
+return Astro.redirect("/");
+---

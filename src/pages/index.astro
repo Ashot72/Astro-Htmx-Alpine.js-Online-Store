@@ -1,0 +1,43 @@
+---
+import type { Product } from "@prisma/client";
+import { getCategories } from "../server/categories";
+import {
+  getCategoryProducts,
+  getProductsBySearchTerm,
+} from "../server/products";
+import Layout from "../layouts/Layout.astro";
+import Categories from "../components/Home/Categories.astro";
+import Products from "../components/Home/Products.astro";
+
+const categories = await getCategories();
+
+let products: Product[] = [];
+
+const htmx = !!Astro.request.headers.get("HX-Request");
+
+const term = Astro.url.searchParams.get("term");
+if (term) {
+  products = await getProductsBySearchTerm(term);
+} else {
+  if (categories.length > 0) {
+    products = await getCategoryProducts(categories[0].id);
+  }
+}
+---
+
+{
+  term !== null && htmx ? (
+    <Products {products} />
+  ) : (
+    <Layout title="Online Store">
+      <div class="d-flex container">
+        <Categories
+          {categories}
+          categoryId={categories.length > 0 ? categories[0].id : ""}
+          count={products.length}
+        />
+        <Products {products} />
+      </div>
+    </Layout>
+  )
+}

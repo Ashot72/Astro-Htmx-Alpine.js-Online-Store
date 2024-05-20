@@ -1,0 +1,25 @@
+---
+import type { Product } from "@prisma/client";
+import ProductComp from "./Product.astro";
+
+interface Props {
+  products: Product[];
+}
+
+const { products } = Astro.props;
+---
+
+<span id="catProducts" class="w-100" hx-ext="response-targets">
+  <div id="catProduct-error"></div>
+  <div>
+    {
+      products.length > 0 && (
+        <div class="px-2 py-2">
+          {products.map((product) => (
+            <ProductComp {product} />
+          ))}
+        </div>
+      )
+    }
+  </div>
+</span>

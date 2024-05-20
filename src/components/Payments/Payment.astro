@@ -1,0 +1,42 @@
+---
+import type { CartProducts } from "@prisma/client";
+
+interface Props {
+    products: CartProducts[];
+}
+
+const { products } = Astro.props;
+---
+
+{
+    products.map(({ name, description, price, picture, qty }, index) => (
+        <div class="card-body">
+            <div class="d-flex justify-content-between">
+                <div class="d-flex flex-row">
+                    <div>
+                        <img
+                            src={picture}
+                            alt={name}
+                            style={{ maxWidth: "420px" }}
+                        />
+                    </div>
+                </div>
+                <div class="d-flex flex-row align-items-center">
+                    <div class="ms-3">
+                        <h5 class="text-primary">{name}</h5>
+                        <div class="small mb-0 text-secondary">
+                            {description}
+                        </div>
+                        <div class="fw-bold mb-0 pe-3">Price: ${price}</div>
+                    </div>
+                </div>
+                <div class="d-flex flex-row align-items-center">
+                    <div style={{ width: "150px" }} class="d-flex flex-row">
+                        <h5 class="fw-normal mb-0">Qty: {qty}</h5>
+                    </div>
+                </div>
+            </div>
+            {products.length > 1 && index < products.length - 1 && <hr />}
+        </div>
+    ))
+}

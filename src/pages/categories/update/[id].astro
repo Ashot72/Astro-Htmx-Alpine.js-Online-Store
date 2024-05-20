@@ -1,0 +1,73 @@
+---
+import { z } from "zod";
+import type { Category } from "@prisma/client";
+import { updateCategory as update } from "../../../server/categories";
+import EditCategory from "../../../components/Categories/EditCategory.astro";
+import Categories from "../../../components/Categories/Categories.astro";
+
+const userId = Astro.locals.userId;
+
+if (!userId) {
+  return Astro.redirect("/");
+}
+
+const htmx = !!Astro.request.headers.get("HX-Request");
+
+if (Astro.request.method !== "POST" || !htmx) {
+  return Astro.redirect("/");
+}
+
+let data: Category, errors, id: string;
+
+async function updateCategory() {
+  if (Astro.request.method !== "POST") {
+    errors = { form: ["Bad Request"] };
+    return;
+  }
+
+  const formData = await Astro.request.formData();
+
+  id = formData.get("id") as string;
+  const name = formData.get("name") as string;
+  const description = formData.get("description") as string;
+
+  data = {
+    name,
+    description,
+  } as Category;
+
+  const result = z
+    .object({
+      name: z
+        .string()
+        .min(4)
+        .regex(/^[a-zA-Z\s\&]*$/, "Must be letters, spaces and ampersands")
+        .trim(),
+      description: z.string().min(10).trim(),
+    })
+    .safeParse({ name, description });
+
+  if (!result.success) {
+    errors = result.error.flatten().fieldErrors;
+    return;
+  }
+
+  try {
+    const category = {
+      name: result.data.name,
+      description: result.data.description,
+    } as Category;
+
+    await update(id, category);
+  } catch (e) {
+    errors = { form: [e.message] };
+    return;
+  }
+}
+
+await updateCategory();
+
+export const partial = true;
+---
+
+{errors ? <EditCategory {id} {errors} {data} /> : <Categories />}

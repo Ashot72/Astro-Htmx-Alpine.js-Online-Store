@@ -1,0 +1,13 @@
+.alert { 
+    margin-right: 10px;
+    margin-left: 10px;
+    text-align: center;
+}
+
+.modal-header {
+    background-color: #0d6efd;
+}
+
+.modal-title {
+    color: white
+}

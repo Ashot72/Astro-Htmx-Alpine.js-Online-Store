@@ -1,0 +1,16 @@
+---
+import type { CartProducts } from "@prisma/client";
+
+import CartProduct from "./CartProduct.astro";
+
+interface Props {
+    products: CartProducts[];
+}
+
+const { products } = Astro.props;
+---
+
+<span id="cartProducts" hx-ext="response-targets">
+    <span id="cart-error"></span>
+    {products.map((product) => <CartProduct {product} />)}
+</span>

@@ -1,0 +1,59 @@
+---
+import type { CartProducts } from "@prisma/client";
+import CartProduct from "../../components/Cart/CartProduct.astro";
+import { getUserCart, addOrRemove } from "../../server/cart";
+
+const userId = Astro.locals.userId;
+if (!userId) {
+  return Astro.redirect("/");
+}
+
+const htmx = !!Astro.request.headers.get("HX-Request");
+
+if (Astro.request.method !== "POST" || !htmx) {
+  return Astro.redirect("/");
+}
+
+const formData = await Astro.request.formData();
+const id = formData.get("id") as string;
+const add = formData.get("add") as string;
+
+try {
+  await addOrRemove(id, userId, add === "true");
+} catch (e) {
+  return new Response(
+    `<div id="cart-error" class="alert alert-danger">${e.message}</div>`,
+    {
+      status: 400,
+    },
+  );
+}
+
+let total = 0;
+let product: CartProducts | undefined;
+
+try {
+  const cart = await getUserCart(userId);
+
+  if (cart) {
+    product = cart.products.find((p) => p.id === id);
+
+    const count = cart.products.map((a) => a.qty * a.price);
+    total = +count.reduce((v, a) => v + a, 0).toFixed(2);
+  } else {
+    Astro.response.headers.set("HX-Redirect", "/");
+  }
+} catch (e) {
+  return new Response(
+    `<div id="cart-error" class="alert alert-danger">${e.message}</div>`,
+    {
+      status: 400,
+    },
+  );
+}
+
+export const partial = true;
+---
+
+{product ? <CartProduct {product} /> : null}
+<span id="total" hx-swap-oob="true">${total.toFixed(2)}</span>

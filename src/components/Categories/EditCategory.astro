@@ -1,0 +1,141 @@
+---
+import type { Category } from "@prisma/client";
+
+interface Props {
+    id: string;
+    errors?: {
+        name?: string[];
+        description?: string[];
+        form?: string[];
+    };
+    data?: Category;
+}
+
+const { id, errors, data } = Astro.props;
+---
+
+<div id="editCategoryDiv">
+    <div>
+        <div
+            id="modal-backdrop"
+            class="modal-backdrop fade show"
+            style="display:block;"
+        >
+        </div>
+        <div
+            id="modal"
+            class="modal fade show"
+            tabindex="-1"
+            style="display:block;"
+        >
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Edit Category</h5>
+                    </div>
+                    <div class="modal-body">
+                        <form
+                            hx-disabled-elt="#cat-btn, #cancel-btn"
+                            class="mx-1 mx-md-4"
+                            hx-post=`/categories/update/${id}`
+                            hx-indicator="#cat-btn"
+                            hx-swap="multi:#catTable:outerHTML,#editCategoryDiv:outerHTML"
+                            id="updateCategory"
+                        >
+                            <input type="hidden" , name="id" value={id} />
+                            <div
+                                class="d-flex flex-row align-items-center mb-4"
+                            >
+                                <div class="form-outline flex-fill mb-0">
+                                    {
+                                        errors && errors.form && (
+                                            <div
+                                                class="alert alert-danger"
+                                                role="alert"
+                                            >
+                                                {errors.form.join(", ")}
+                                            </div>
+                                        )
+                                    }
+                                    {
+                                        errors && errors.name && (
+                                            <div
+                                                class="alert alert-danger"
+                                                role="alert"
+                                            >
+                                                {errors.name.join(", ")}
+                                            </div>
+                                        )
+                                    }
+                                    <input
+                                        autofocus
+                                        required
+                                        type="text"
+                                        id="name"
+                                        name="name"
+                                        placeholder="Name"
+                                        class="form-control"
+                                        @keydown.escape={`edit=false`}
+                                        value={data?.name}
+                                    />
+                                </div>
+                            </div>
+                            <div
+                                class="d-flex flex-row align-items-center mb-4"
+                            >
+                                <div class="form-outline flex-fill mb-0">
+                                    {
+                                        errors && errors.description && (
+                                            <div
+                                                class="alert alert-danger"
+                                                role="alert"
+                                            >
+                                                {errors.description.join(", ")}
+                                            </div>
+                                        )
+                                    }
+                                    <textarea
+                                        required
+                                        id="description"
+                                        name="description"
+                                        placeholder="Description"
+                                        rows="4"
+                                        class="form-control"
+                                        >{data?.description}</textarea
+                                    >
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button
+                                    id="cat-btn"
+                                    type="submit"
+                                    class="btn btn-primary"
+                                >
+                                    <span class="btn-content"
+                                        >Update Category</span
+                                    >
+                                    <span class="htmx-indicator">Wait...</span>
+                                </button>
+                                <button
+                                    onclick="hide()"
+                                    id="cancel-btn"
+                                    type="button"
+                                    class="btn btn-secondary"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script is:inline>
+            function hide() {
+                document.getElementById("editCategoryDiv").style.display =
+                    "none";
+            }
+        </script>
+    </div>
+</div>

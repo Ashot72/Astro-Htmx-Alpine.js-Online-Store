@@ -1,0 +1,60 @@
+---
+import Checkout from "./Checkout";
+import { getUserCart } from "../../server/cart";
+import CartProducts from "./CartProducts.astro";
+import { getUserEmail } from "../../server/auth";
+
+const userId = Astro.locals.userId;
+
+const cart = await getUserCart(userId);
+const userEmail = await getUserEmail(userId);
+let total = 0;
+
+if (cart) {
+    const count = cart.products.map((a) => a.qty * a.price);
+    total = +count.reduce((v, a) => v + a, 0).toFixed(2);
+}
+---
+
+<div class="container mt-2" id="cart">
+    {
+        cart && (
+            <>
+                <CartProducts products={cart.products} />
+                <div class="card mb-3">
+                    <div class="me-3">
+                        <div
+                            class="d-flex justify-content-end align-items-center"
+                            style={{
+                                height: "72px",
+                                marginRight: "16px",
+                            }}
+                        >
+                            <div style={{ marginRight: "10px" }}>
+                                Total:&nbsp;
+                                <b>
+                                    <span id="total">${total}</span>
+                                </b>
+                            </div>
+                            <Checkout
+                                client:only="react"
+                                email={userEmail}
+                                total={total}
+                                userId={userId}
+                            />
+                        </div>
+                    </div>
+                </div>
+            </>
+        )
+    }
+    {
+        !cart && (
+            <div class="alert-message">
+                <div class="alert alert-primary" role="alert">
+                    <h3>No Items</h3>
+                </div>
+            </div>
+        )
+    }
+</div>

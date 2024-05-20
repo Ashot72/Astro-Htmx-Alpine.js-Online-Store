@@ -1,0 +1,118 @@
+---
+import jwt from "jsonwebtoken";
+import { z } from "zod";
+import AuthComp from "../components/Auth.astro";
+import { createUser, userExsist, login } from "../server/auth";
+
+if (Astro.locals.userId) {
+    return Astro.redirect("/");
+}
+
+const isGet = Astro.request.method === "GET";
+const isPost = Astro.request.method === "POST";
+const isDelete = Astro.request.method === "DELETE";
+
+let data, errors, signUp: boolean;
+
+if (isGet) {
+    const params = new URLSearchParams(Astro.url.searchParams);
+    signUp = params.get("signUp") === "true";
+    data = { signUp };
+}
+
+if (isPost) {
+    async function auth() {
+        const formData = await Astro.request.formData();
+
+        const signUp = formData.get("signUp") as string;
+        const email = formData.get("email") as string;
+        const password = formData.get("password") as string;
+
+        data = {
+            email,
+            password,
+            signUp,
+        };
+
+        data.signUp = signUp === "true";
+        data.email = email;
+        data.password = password;
+
+        const result = z
+            .object({
+                email: z
+                    .string()
+                    .trim()
+                    .toLowerCase()
+                    .min(1, "Email is required")
+                    .email(),
+                password: z
+                    .string()
+                    .trim()
+                    .min(6, "Password must be at least 6 digit long"),
+            })
+            .safeParse({ email, password });
+
+        if (!result.success) {
+            errors = result.error.flatten().fieldErrors;
+            return;
+        }
+
+        try {
+            let id;
+            if (data.signUp) {
+                try {
+                    if (await userExsist(result.data.email)) {
+                        errors = {
+                            email: ["User already exists with this email"],
+                        };
+                        return;
+                    }
+                } catch (e) {
+                    errors = { email: [e.message] };
+                    return;
+                }
+
+                const user = await createUser(
+                    result.data.email,
+                    result.data.password,
+                );
+                id = user.id;
+            } else {
+                id = await login(result.data.email, result.data.password);
+                if (id === false) {
+                    errors = { form: ["Invalid Credentials"] };
+                    return;
+                }
+            }
+
+            const token = jwt.sign({ id }, import.meta.env.JWT_SECRET);
+
+            Astro.cookies.set("online-store", token),
+                {
+                    httpOnly: true,
+                    secure: true,
+                    maxAge: 365 * 24 * 60 * 60,
+                };
+        } catch (e) {
+            errors = { form: [e.message] };
+            return;
+        }
+
+        Astro.response.headers.set("HX-Redirect", "/");
+    }
+
+    await auth();
+}
+
+export const partial = true;
+---
+
+{
+    !isDelete && (
+        <>
+            <AuthComp {errors} {data} />
+            <title>{data.signUp ? "Sign Up" : "Log In"}</title>
+        </>
+    )
+}

@@ -1,0 +1,40 @@
+---
+import { getUserPayments } from "../../server/payments";
+import Payment from "./Payment.astro";
+
+const userId = Astro.locals.userId;
+
+const payments = await getUserPayments(userId);
+
+const products = payments.map((payment) => payment.products).flat();
+const total = products
+    .reduce((total, item) => item.price * item.qty + total, 0)
+    .toFixed(2);
+---
+
+<div class="container mt-2">
+    {
+        payments.length > 0 && (
+            <div class="badge bg-primary text-wrap m-2">Total: ${total}</div>
+        )
+    }
+    {
+        payments.map((payment) => (
+            <div class="card mb-3">
+                <div class="badge bg-primary text-wrap m-2 align-self-end">
+                    {payment.dateAdded.toLocaleString()}
+                </div>
+                <Payment products={payment.products} />
+            </div>
+        ))
+    }
+    {
+        payments.length === 0 && (
+            <div class="alert-message">
+                <div class="alert alert-primary" role="alert">
+                    <h3>No Orders</h3>
+                </div>
+            </div>
+        )
+    }
+</div>

@@ -1,0 +1,40 @@
+---
+import { addToCart } from "../../server/cart";
+import { getCategoryProducts } from "../../server/products";
+import Products from "../../components/Home/Products.astro";
+
+const userId = Astro.locals.userId;
+if (!userId) {
+    return Astro.redirect("/");
+}
+
+const htmx = !!Astro.request.headers.get("HX-Request");
+
+if (Astro.request.method !== "POST" || !htmx) {
+    return Astro.redirect("/");
+}
+
+const formData = await Astro.request.formData();
+
+const id = formData.get("id") as string;
+const categoryId = formData.get("categoryId") as string;
+
+const products = await getCategoryProducts(categoryId);
+
+export const partial = true;
+
+try {
+    await addToCart(id, userId);
+} catch (e) {
+    return new Response(
+        `<div id="catProduct-error" class="alert alert-danger">${e.message}</div>`,
+        {
+            status: 400,
+        },
+    );
+}
+
+Astro.response.headers.set("HX-Redirect", "/cart");
+---
+
+<Products {products} />

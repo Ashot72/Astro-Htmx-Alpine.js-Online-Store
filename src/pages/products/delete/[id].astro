@@ -1,0 +1,33 @@
+---
+import { deleteProduct } from "../../../server/products";
+import Products from "../../../components/Products/Products.astro";
+
+if (!Astro.locals.userId) {
+  return Astro.redirect("/");
+}
+
+const htmx = !!Astro.request.headers.get("HX-Request");
+
+const { id } = Astro.params;
+
+if (Astro.request.method !== "DELETE" || !id || !htmx) {
+  return Astro.redirect("/");
+}
+
+let catId: string;
+try {
+  const product = await deleteProduct(id);
+  catId = product.categoryId;
+} catch (e) {
+  return new Response(
+    `<div id="products-errors" class="alert alert-danger">${e.message}</div>`,
+    {
+      status: 400,
+    },
+  );
+}
+
+export const partial = true;
+---
+
+<Products {catId} />

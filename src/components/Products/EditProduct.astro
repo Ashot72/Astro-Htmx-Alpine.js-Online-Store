@@ -1,0 +1,241 @@
+---
+import type { Product } from "@prisma/client";
+
+interface Props {
+    id: string;
+    errors?: {
+        name?: string[];
+        description?: string[];
+        price?: string[];
+        count?: string[];
+        picture?: string[];
+        form?: string[];
+    };
+    data?: Product;
+}
+
+const { id, errors, data } = Astro.props;
+---
+
+<div id="editProductDiv">
+    <div>
+        <div
+            id="modal-backdrop"
+            class="modal-backdrop fade show"
+            style="display:block;"
+        >
+        </div>
+        <div
+            id="modal"
+            class="modal fade show"
+            tabindex="-1"
+            style="display:block;"
+        >
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Edit Product</h5>
+                    </div>
+
+                    <div class="modal-body">
+                        <form
+                            hx-disabled-elt="#prod-btn, #cancel-btn"
+                            class="mx-1 mx-md-4"
+                            hx-post=`/products/update/${id}`
+                            hx-indicator="#prod-btn"
+                            hx-swap="multi:#prodTable:outerHTML,#editProductDiv:outerHTML"
+                            id="updateProduct"
+                        >
+                            <input type="hidden" , name="id" value={id} />
+                            <input
+                                type="hidden"
+                                id="picture"
+                                name="picture"
+                                value={data?.picture}
+                            />
+                            <input
+                                type="hidden"
+                                id="categoryId"
+                                name="categoryId"
+                                value={data?.categoryId}
+                            />
+
+                            <div
+                                class="d-flex flex-row align-items-center mb-4"
+                            >
+                                <div class="form-outline flex-fill mb-0">
+                                    {
+                                        errors && errors.form && (
+                                            <div
+                                                class="alert alert-danger"
+                                                role="alert"
+                                            >
+                                                {errors.form.join(", ")}
+                                            </div>
+                                        )
+                                    }
+                                    {
+                                        errors && errors.name && (
+                                            <div
+                                                class="alert alert-danger"
+                                                role="alert"
+                                            >
+                                                {errors.name.join(", ")}
+                                            </div>
+                                        )
+                                    }
+                                    <input
+                                        autofocus
+                                        required
+                                        type="text"
+                                        id="name"
+                                        name="name"
+                                        placeholder="Name"
+                                        class="form-control"
+                                        value={data?.name}
+                                    />
+                                </div>
+                            </div>
+                            <div
+                                class="d-flex flex-row align-items-center mb-4"
+                            >
+                                <div class="form-outline flex-fill mb-0">
+                                    {
+                                        errors && errors.description && (
+                                            <div
+                                                class="alert alert-danger"
+                                                role="alert"
+                                            >
+                                                {errors.description.join(", ")}
+                                            </div>
+                                        )
+                                    }
+                                    <textarea
+                                        required
+                                        id="description"
+                                        name="description"
+                                        placeholder="Description"
+                                        rows="4"
+                                        class="form-control"
+                                        >{data?.description}</textarea
+                                    >
+                                </div>
+                            </div>
+
+                            <div
+                                class="d-flex flex-row align-items-center mb-4"
+                            >
+                                <div class="form-outline flex-fill mb-0">
+                                    {
+                                        errors && errors.price && (
+                                            <div
+                                                class="alert alert-danger"
+                                                role="alert"
+                                            >
+                                                {errors.price.join(", ")}
+                                            </div>
+                                        )
+                                    }
+                                    <input
+                                        required
+                                        type="text"
+                                        id="price"
+                                        name="price"
+                                        placeholder="Price"
+                                        class="form-control"
+                                        value={data?.price}
+                                    />
+                                </div>
+                            </div>
+
+                            <div
+                                class="d-flex flex-row align-items-center mb-4"
+                            >
+                                <div class="form-outline flex-fill mb-0">
+                                    {
+                                        errors && errors.count && (
+                                            <div
+                                                class="alert alert-danger"
+                                                role="alert"
+                                            >
+                                                {errors.count.join(", ")}
+                                            </div>
+                                        )
+                                    }
+                                    <input
+                                        required
+                                        type="text"
+                                        id="count"
+                                        name="count"
+                                        placeholder="Count"
+                                        class="form-control"
+                                        value={data?.count}
+                                    />
+                                </div>
+                            </div>
+
+                            <div
+                                class="d-flex flex-row align-items-center mb-4"
+                            >
+                                <div class="form-outline flex-fill mb-0">
+                                    {
+                                        errors && errors.picture && (
+                                            <div
+                                                class="alert alert-danger"
+                                                role="alert"
+                                            >
+                                                {errors.picture.join(", ")}
+                                            </div>
+                                        )
+                                    }
+                                    <input
+                                        type="file"
+                                        id="image"
+                                        name="image"
+                                        placeholder="Image"
+                                        class="form-control"
+                                        accept="image/png, image/jpeg"
+                                        onchange="getImage(event)"
+                                    />
+                                </div>
+                            </div>
+                            <div style={{ textAlign: "center" }}>
+                                <img
+                                    id="base64"
+                                    style={{ maxWidth: "420px" }}
+                                    src={data?.picture}
+                                />
+                            </div>
+                            <div class="modal-footer">
+                                <button
+                                    id="prod-btn"
+                                    type="submit"
+                                    class="btn btn-primary"
+                                >
+                                    <span class="btn-content"
+                                        >Update Product</span
+                                    >
+                                    <span class="htmx-indicator">Wait...</span>
+                                </button>
+                                <button
+                                    onclick="hide()"
+                                    id="cancel-btn"
+                                    type="button"
+                                    class="btn btn-secondary"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script is:inline>
+        function hide() {
+            document.getElementById("editProductDiv").style.display = "none";
+        }
+    </script>
+</div>

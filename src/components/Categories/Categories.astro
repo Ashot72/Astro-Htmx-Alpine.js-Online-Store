@@ -1,0 +1,28 @@
+---
+import { getCategories } from "../../server/categories";
+import Category from "./Category.astro";
+
+const categories = await getCategories();
+---
+
+<div id="catTable" hx-ext="response-targets">
+    <div id="category-errors"></div>
+    <table class="table align-middle mb-0 bg-white">
+        <thead class="bg-light">
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th style={{ textAlign: "center" }}>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {
+                categories.map((category) => (
+                    <tr>
+                        <Category {category} />
+                    </tr>
+                ))
+            }
+        </tbody>
+    </table>
+</div>

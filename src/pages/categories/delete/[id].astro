@@ -1,0 +1,30 @@
+---
+import { deleteCategory } from "../../../server/categories";
+import Categories from "../../../components/Categories/Categories.astro";
+
+if (!Astro.locals.userId) {
+  return Astro.redirect("/");
+}
+
+const htmx = !!Astro.request.headers.get("HX-Request");
+
+const { id } = Astro.params;
+if (Astro.request.method !== "DELETE" || !id || !htmx) {
+  return Astro.redirect("/");
+}
+
+try {
+  await deleteCategory(id);
+} catch (e) {
+  return new Response(
+    `<div id="category-errors" class="alert alert-danger">${e.message}</div>`,
+    {
+      status: 400,
+    },
+  );
+}
+
+export const partial = true;
+---
+
+<Categories />

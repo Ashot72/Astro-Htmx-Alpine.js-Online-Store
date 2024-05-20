@@ -1,0 +1,49 @@
+category: Shoes
+description: Most popular shoes.
+------
+
+reiker.jpg -
+   name: Rieker Shoes Spring-Summer 2022
+   price: $69
+   count: 4
+   description:  Men's natural leather shoes from the German brand Rieker. Lining from high-quality eco-leather, insole natural leather.
+
+rockport.jpg
+   name: Rockport Men's Darwyn Fishermen Fisherman Sandal   
+   price $62.24
+   count: 10
+   description: From pool parties to backyard bbqs, the darwyn collection is ideal for all of summer activities. each of these no-fuss sandals boasts a stitch-down construction and a wide base for plenty of support and stability. durable pu outsoles help reduce foot fatigue while trutech cushioning at the heel ensures a confident, easy stride all season long.
+
+skechers.jpg
+  name: Skechers Men's Expected Avillo Moccasin
+  price: $59
+  count: 12
+  description: Find your island of style and comfort with Skechers Relaxed Fit®: Expected - Avillo. Soft washed canvas fabric and suede upper in a slip-on casual comfort loafer with Memory Foam insole.
+
+category: Lego
+description: Plastic building-block toys that rose to massive popularity in the mid-20th century.
+------
+
+volvo.jpg
+  name: LEGO Technic 6x6 Volvo Articulated Hauler Building Kit
+  price: $249
+  count: 7
+  descripton: A realistic model version of Volvo’s biggest articulated hauler, the LEGO Technic 6x6 Volvo Articulated Hauler (42114) is ideal for kids who love construction vehicles. The truck is powered by 1 large angular position motor, 1 XL motor and 1 L motor with a Bluetooth controlled Smart Hub for realistic functionality. Explore the app for new ways to play. There are lots of authentic details to discover and kids can take control of the truck using the LEGO Technic CONTROL+ app.
+
+robot.jpg
+  name: Sillbird Robot STEM Projects for Kids
+  price: $31.99
+  count: 14
+  description: Sillbird B880 STEM Building robot is challenging but not far too advanced, perfect for kids 8 through 12 and provide them countless hours of fun and creativity. Inspire early learners to explore coding concepts can help kids learn cognitive skills like critical thinking and problem solving, while they’re also having fun assembling the robot and making the robot work.
+
+car.jpg
+  name: LEGO Technic McLaren Senna GTR 42123 Toy Car Model Building Kit
+  price: $40
+  count: 23
+  description: This awesome track-focused supercar toy model looks great on display and is sure to capture the imagination of any kid or adult with a passion for supercars, motorsport and McLaren
+
+               Very cool!
+
+
+
+

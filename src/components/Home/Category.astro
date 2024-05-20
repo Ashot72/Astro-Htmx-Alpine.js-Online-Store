@@ -1,0 +1,34 @@
+---
+import type { Category } from "@prisma/client";
+
+interface Props {
+    categoryId: string;
+    count: number;
+    category: Category;
+}
+
+const { categoryId, count, category } = Astro.props;
+---
+
+<li
+    class="list-group-item d-flex justify-content-between align-items-start"
+    style={{ cursor: "pointer" }}
+>
+    <div
+        hx-get=`/home/products/${category.id}`
+        hx-target="#categories"
+        hx-swap="outerHTML"
+        hx-push-url="true"
+        class="ms-2 me-auto"
+    >
+        <div class="fw-bold">{category.name}</div>
+        {category.description}
+    </div>
+    {
+        categoryId === category.id && (
+            <span hx-trigger="load" class="badge bg-primary rounded-pill">
+                {count}
+            </span>
+        )
+    }
+</li>

@@ -1,0 +1,22 @@
+---
+import type { Category } from "@prisma/client";
+import CategoryCoomp from "./Category.astro";
+
+interface Props {
+    categoryId: string;
+    count: number;
+    categories: Category[];
+}
+
+const { categoryId, count, categories } = Astro.props;
+---
+
+<div class="py-2" style={{ width: "385px" }} id="categories">
+    <ul class="list-group">
+        {
+            categories.map((category) => (
+                <CategoryCoomp {category} {categoryId} {count} />
+            ))
+        }
+    </ul>
+</div>

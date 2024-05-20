@@ -1,0 +1,9 @@
+---
+import CartView from "../../components/Cart/CartView.astro";
+
+if (!Astro.locals.userId) {
+    return Astro.redirect("/");
+}
+---
+
+<CartView />

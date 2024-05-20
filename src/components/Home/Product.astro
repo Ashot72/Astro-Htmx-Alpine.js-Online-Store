@@ -1,0 +1,70 @@
+---
+import type { Product } from "@prisma/client";
+import { lnToBr } from "../../helpers/utils";
+
+const userId = Astro.locals.userId;
+
+interface Props {
+    product: Product;
+}
+
+const { product } = Astro.props;
+---
+
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="me-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <img
+                    src={product.picture}
+                    class="img-fluid"
+                    style={{ width: "150px" }}
+                />
+                <div class="mx-5">
+                    <h5 class="text-primary">{product.name}</h5>
+                    <div
+                        class="text-secondary"
+                        set:html={lnToBr(product.description)}
+                    />
+                    <div class="fw-bold mb-0 pe-3 mt-2">
+                        Price: ${product.price}
+                    </div>
+                    <div class="mb-0 pe-3">Qty: {product.count}</div>
+                </div>
+
+                {
+                    userId && (
+                        <div class="text-end">
+                            <form
+                                hx-target-error={`#catProduct-error`}
+                                hx-post={`/cart/addToCart`}
+                                hx-disabled-elt={`#add-${product.id}`}
+                                hx-indicator={`#add-${product.id}`}
+                                hx-target="#catProducts"
+                                hx-swap="outerHTML"
+                            >
+                                <input
+                                    type="hidden"
+                                    name="id"
+                                    value={product.id}
+                                />
+                                <input
+                                    type="hidden"
+                                    name="categoryId"
+                                    value={product.categoryId}
+                                />
+                                <button
+                                    type="submit"
+                                    id={`add-${product.id}`}
+                                    class="btn btn-primary text-nowrap"
+                                >
+                                    Add to Cart
+                                </button>
+                            </form>
+                        </div>
+                    )
+                }
+            </div>
+        </div>
+    </div>
+</div>
