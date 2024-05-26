@@ -19,11 +19,6 @@ if (Astro.request.method !== "POST" || !htmx) {
 let data: Product, errors, id: string, categoryId: string;
 
 async function updateProduct() {
-    if (Astro.request.method !== "POST") {
-        errors = { form: ["Bad Request"] };
-        return;
-    }
-
     const formData = await Astro.request.formData();
 
     id = formData.get("id") as string;
